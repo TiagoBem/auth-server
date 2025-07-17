@@ -3,7 +3,6 @@ package com.authserver.controller;
 import com.authserver.dto.AuthenticationFinishRequest;
 import com.authserver.dto.AuthenticationStartRequest;
 import com.authserver.dto.AuthenticationStartResponse;
-import com.authserver.dto.RegistrationStartResponse;
 import com.authserver.entity.Credential;
 import com.authserver.entity.User;
 import com.authserver.repository.CredentialRepository;
@@ -11,6 +10,7 @@ import com.authserver.repository.UserRepository;
 import com.yubico.webauthn.AssertionRequest;
 import com.yubico.webauthn.AssertionResult;
 import com.yubico.webauthn.FinishAssertionOptions;
+import com.yubico.webauthn.RelyingParty;
 import com.yubico.webauthn.StartAssertionOptions;
 import com.yubico.webauthn.data.AuthenticatorAssertionResponse;
 import com.yubico.webauthn.data.ByteArray;
@@ -41,7 +41,7 @@ import java.util.Optional;
 @Slf4j
 public class AuthenticationController {
 
-    private final RegistrationStartResponse.RelyingParty relyingParty;
+    private final RelyingParty relyingParty;
     private final UserRepository userRepository;
     private final CredentialRepository credentialRepository;
 

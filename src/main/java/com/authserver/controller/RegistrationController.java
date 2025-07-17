@@ -1,6 +1,5 @@
 package com.authserver.controller;
 
-import com.authserver.config.WebAuthnConfig;
 import com.authserver.dto.RegistrationFinishRequest;
 import com.authserver.dto.RegistrationStartRequest;
 import com.authserver.dto.RegistrationStartResponse;
@@ -10,8 +9,15 @@ import com.authserver.repository.CredentialRepository;
 import com.authserver.repository.UserRepository;
 import com.yubico.webauthn.FinishRegistrationOptions;
 import com.yubico.webauthn.RegistrationResult;
+import com.yubico.webauthn.RelyingParty;
 import com.yubico.webauthn.StartRegistrationOptions;
-import com.yubico.webauthn.data.*;
+import com.yubico.webauthn.data.AuthenticatorAttestationResponse;
+import com.yubico.webauthn.data.AuthenticatorSelectionCriteria;
+import com.yubico.webauthn.data.ByteArray;
+import com.yubico.webauthn.data.ClientRegistrationExtensionOutputs;
+import com.yubico.webauthn.data.PublicKeyCredential;
+import com.yubico.webauthn.data.PublicKeyCredentialCreationOptions;
+import com.yubico.webauthn.data.UserIdentity;
 import com.yubico.webauthn.data.exception.Base64UrlException;
 import com.yubico.webauthn.exception.RegistrationFailedException;
 import jakarta.servlet.http.HttpSession;
@@ -32,10 +38,9 @@ import java.time.Instant;
 @Slf4j
 public class RegistrationController {
 
-    private final RegistrationStartResponse.RelyingParty relyingParty;
+    private final RelyingParty relyingParty;
     private final UserRepository userRepository;
     private final CredentialRepository credentialRepository;
-    private final WebAuthnConfig webAuthnConfig;
 
     @PostMapping("/start")
     public ResponseEntity<RegistrationStartResponse> startRegistration(
@@ -64,10 +69,13 @@ public class RegistrationController {
         // Start registration
         StartRegistrationOptions options = StartRegistrationOptions.builder()
                 .user(userIdentity)
-                .authenticatorSelection(webAuthnConfig.authenticatorSelectionCriteria())
+                .authenticatorSelection(AuthenticatorSelectionCriteria.builder()
+                        .residentKey(com.yubico.webauthn.data.ResidentKeyRequirement.PREFERRED)
+                        .userVerification(com.yubico.webauthn.data.UserVerificationRequirement.PREFERRED)
+                        .build())
                 .build();
 
-        RegistrationStartResponse.PublicKeyCredentialCreationOptions creationOptions = relyingParty.startRegistration(options);
+        PublicKeyCredentialCreationOptions creationOptions = relyingParty.startRegistration(options);
 
         // Store in session
         session.setAttribute("creationOptions", creationOptions);
@@ -87,8 +95,8 @@ public class RegistrationController {
 
         try {
             // Get stored data from session
-            RegistrationStartResponse.PublicKeyCredentialCreationOptions creationOptions =
-                    (RegistrationStartResponse.PublicKeyCredentialCreationOptions) session.getAttribute("creationOptions");
+            PublicKeyCredentialCreationOptions creationOptions =
+                    (PublicKeyCredentialCreationOptions) session.getAttribute("creationOptions");
             String username = (String) session.getAttribute("username");
             String displayName = (String) session.getAttribute("displayName");
             String email = (String) session.getAttribute("email");
@@ -203,7 +211,7 @@ public class RegistrationController {
                                         .map(as -> as.getAuthenticatorAttachment().map(Object::toString).orElse(null))
                                         .orElse(null))
                                 .residentKey(creationOptions.getAuthenticatorSelection()
-                                        .map(as -> as.getResidentKey().map(Object::toString).orElse(null))
+                                        .map(as -> as.getResidentKey().get())
                                         .orElse(null))
                                 .userVerification(creationOptions.getAuthenticatorSelection()
                                         .map(as -> as.getUserVerification().toString())

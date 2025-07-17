@@ -1,11 +1,9 @@
 package com.authserver.config;
 
-import com.authserver.dto.RegistrationStartResponse;
 import com.authserver.service.WebAuthnCredentialRepository;
+import com.yubico.webauthn.RelyingParty;
 import com.yubico.webauthn.data.AttestationConveyancePreference;
 import com.yubico.webauthn.data.RelyingPartyIdentity;
-import com.yubico.webauthn.data.ResidentKeyRequirement;
-import com.yubico.webauthn.data.UserVerificationRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,18 +29,9 @@ public class WebAuthnConfig {
     }
 
     @Bean
-    public RegistrationStartResponse.AuthenticatorSelectionCriteria authenticatorSelectionCriteria() {
-        return RegistrationStartResponse.AuthenticatorSelectionCriteria.builder()
-                // Remove the authenticatorAttachment restriction to allow both platform and cross-platform authenticators
-                .residentKey(ResidentKeyRequirement.PREFERRED)
-                .userVerification(UserVerificationRequirement.PREFERRED)
-                .build();
-    }
-
-    @Bean
-    public RegistrationStartResponse.RelyingParty relyingParty() {
-        return RegistrationStartResponse.RelyingParty.builder()
-                .identity(relyingPartyIdentity())
+    public RelyingParty relyingParty(RelyingPartyIdentity relyingPartyIdentity) {
+        return RelyingParty.builder()
+                .identity(relyingPartyIdentity)
                 .credentialRepository(webAuthnCredentialRepository)
                 .origins(RP_ORIGINS)
                 .attestationConveyancePreference(AttestationConveyancePreference.DIRECT)

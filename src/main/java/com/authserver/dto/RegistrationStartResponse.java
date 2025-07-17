@@ -55,7 +55,7 @@ public class RegistrationStartResponse {
     @AllArgsConstructor
     public static class AuthenticatorSelectionCriteria {
         private String authenticatorAttachment;
-        private String residentKey;
+        private com.yubico.webauthn.data.ResidentKeyRequirement residentKey;
         private String userVerification;
     }
 }

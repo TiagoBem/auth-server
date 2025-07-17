@@ -2,7 +2,7 @@
 --comment: Create credentials table
 
 CREATE TABLE credentials (
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     credential_id VARCHAR(255) NOT NULL UNIQUE,
     public_key TEXT NOT NULL,
     user_id BIGINT NOT NULL,

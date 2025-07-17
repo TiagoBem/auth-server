@@ -2,7 +2,7 @@
 --comment: Create users table
 
 CREATE TABLE users (
-    id BIGINT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
     display_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,

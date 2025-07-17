@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <include file="db/changelog/001-create-users-table.xml"/>
-    <include file="db/changelog/002-create-credentials-table.xml"/>
+    <include file="db/changelog/202507171800000-create-users-table.sql"/>
+    <include file="db/changelog/202507171800000-create-credentials-table.sql"/>
 
 </databaseChangeLog>

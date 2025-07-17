@@ -11,13 +11,7 @@ import com.yubico.webauthn.FinishRegistrationOptions;
 import com.yubico.webauthn.RegistrationResult;
 import com.yubico.webauthn.RelyingParty;
 import com.yubico.webauthn.StartRegistrationOptions;
-import com.yubico.webauthn.data.AuthenticatorAttestationResponse;
-import com.yubico.webauthn.data.AuthenticatorSelectionCriteria;
-import com.yubico.webauthn.data.ByteArray;
-import com.yubico.webauthn.data.ClientRegistrationExtensionOutputs;
-import com.yubico.webauthn.data.PublicKeyCredential;
-import com.yubico.webauthn.data.PublicKeyCredentialCreationOptions;
-import com.yubico.webauthn.data.UserIdentity;
+import com.yubico.webauthn.data.*;
 import com.yubico.webauthn.data.exception.Base64UrlException;
 import com.yubico.webauthn.exception.RegistrationFailedException;
 import jakarta.servlet.http.HttpSession;
@@ -70,9 +64,9 @@ public class RegistrationController {
         StartRegistrationOptions options = StartRegistrationOptions.builder()
                 .user(userIdentity)
                 .authenticatorSelection(AuthenticatorSelectionCriteria.builder()
-                        .residentKey(com.yubico.webauthn.data.ResidentKeyRequirement.PREFERRED)
-                        .userVerification(com.yubico.webauthn.data.UserVerificationRequirement.PREFERRED)
-                        .build())
+                .residentKey(com.yubico.webauthn.data.ResidentKeyRequirement.PREFERRED)
+                .userVerification(com.yubico.webauthn.data.UserVerificationRequirement.PREFERRED)
+                .build())
                 .build();
 
         PublicKeyCredentialCreationOptions creationOptions = relyingParty.startRegistration(options);

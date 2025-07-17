@@ -28,6 +28,15 @@ public class WebAuthnConfig {
                 .build();
     }
 
+//    @Bean
+//    public RegistrationStartResponse.AuthenticatorSelectionCriteria authenticatorSelectionCriteria() {
+//        return RegistrationStartResponse.AuthenticatorSelectionCriteria.builder()
+//                // Remove the authenticatorAttachment restriction to allow both platform and cross-platform authenticators
+//                .residentKey(ResidentKeyRequirement.PREFERRED)
+//                .userVerification(UserVerificationRequirement.PREFERRED)
+//                .build();
+//    }
+
     @Bean
     public RelyingParty relyingParty(RelyingPartyIdentity relyingPartyIdentity) {
         return RelyingParty.builder()

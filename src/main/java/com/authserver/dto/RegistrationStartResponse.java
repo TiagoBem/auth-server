@@ -1,6 +1,7 @@
 package com.authserver.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yubico.webauthn.data.ResidentKeyRequirement;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -55,7 +56,7 @@ public class RegistrationStartResponse {
     @AllArgsConstructor
     public static class AuthenticatorSelectionCriteria {
         private String authenticatorAttachment;
-        private com.yubico.webauthn.data.ResidentKeyRequirement residentKey;
+        private ResidentKeyRequirement residentKey;
         private String userVerification;
     }
 }

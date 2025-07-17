@@ -1,6 +1,7 @@
 package com.authserver.controller;
 
 import com.authserver.dto.AuthenticationFinishRequest;
+import com.authserver.dto.AuthenticationResponse;
 import com.authserver.dto.AuthenticationStartRequest;
 import com.authserver.dto.AuthenticationStartResponse;
 import com.authserver.entity.Credential;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -81,7 +84,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/finish")
-    public ResponseEntity<Void> finishAuthentication(
+    public ResponseEntity<AuthenticationResponse> finishAuthentication(
             @RequestBody AuthenticationFinishRequest request,
             HttpSession session) {
 
@@ -144,6 +147,8 @@ public class AuthenticationController {
             AssertionResult result = relyingParty.finishAssertion(finishOptions);
 
             if (result.isSuccess()) {
+                User user = userRepository.findByUsername(username).orElseThrow();
+
                 // Update credential
                 Optional<Credential> credentialOpt = credentialRepository.findByCredentialId(result.getCredentialId().getBase64Url());
                 if (credentialOpt.isPresent()) {
@@ -154,10 +159,11 @@ public class AuthenticationController {
                 }
 
                 // Authenticate user
+                Collection<GrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(user.getRole().name()));
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         username,
                         null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                        authorities
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -165,7 +171,7 @@ public class AuthenticationController {
                 session.removeAttribute("assertionRequest");
                 session.removeAttribute("username");
 
-                return ResponseEntity.ok().build();
+                return ResponseEntity.ok(new AuthenticationResponse(user.getUsername(), user.getRole()));
             } else {
                 return ResponseEntity.badRequest()
                         .header("X-Authentication-Error", "Authentication verification failed")

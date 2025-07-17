@@ -338,9 +338,9 @@ async function startAuthentication(username, retryCount = 0) {
         showStatus('Authentication successful! You are now logged in.');
 
         // Redirect to home page after successful login
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 2000);
+//        setTimeout(() => {
+//            window.location.href = '/';
+//        }, 2000);
 
         return true;
     } catch (error) {

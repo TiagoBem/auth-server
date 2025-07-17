@@ -29,7 +29,7 @@ public class WebAuthnUserDetailsService implements UserDetailsService {
                 true, // account non-expired
                 true, // credentials non-expired
                 true, // account non-locked
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()))
         );
     }
 }

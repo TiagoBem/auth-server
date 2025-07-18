@@ -1,13 +1,15 @@
 package com.authserver.controller;
 
 import com.authserver.dto.AuthenticationFinishRequest;
-import com.authserver.dto.AuthenticationResponse;
+import com.authserver.dto.PasskeyAuthenticationResponse;
+import com.authserver.dto.UserResponse;
 import com.authserver.dto.AuthenticationStartRequest;
 import com.authserver.dto.AuthenticationStartResponse;
 import com.authserver.entity.Credential;
 import com.authserver.entity.User;
 import com.authserver.repository.CredentialRepository;
 import com.authserver.repository.UserRepository;
+import com.authserver.util.JwtUtil;
 import com.yubico.webauthn.*;
 import com.yubico.webauthn.data.AuthenticatorAssertionResponse;
 import com.yubico.webauthn.data.ByteArray;
@@ -43,6 +45,7 @@ public class AuthenticationController {
     private final RelyingParty relyingParty;
     private final UserRepository userRepository;
     private final CredentialRepository credentialRepository;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/start")
     public ResponseEntity<AuthenticationStartResponse> startAuthentication(
@@ -84,7 +87,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/finish")
-    public ResponseEntity<AuthenticationResponse> finishAuthentication(
+    public ResponseEntity<PasskeyAuthenticationResponse> finishAuthentication(
             @RequestBody AuthenticationFinishRequest request,
             HttpSession session) {
 
@@ -171,7 +174,14 @@ public class AuthenticationController {
                 session.removeAttribute("assertionRequest");
                 session.removeAttribute("username");
 
-                return ResponseEntity.ok(new AuthenticationResponse(user.getUsername(), user.getRole()));
+                final String jwt = jwtUtil.generateToken(user);
+
+                return ResponseEntity.ok(PasskeyAuthenticationResponse.builder()
+                        .access_token(jwt)
+                        .token_type("bearer")
+                        .expires_in(3600L)
+                        .user(new UserResponse(user.getId(), user.getUsername(), user.getRole()))
+                        .build());
             } else {
                 return ResponseEntity.badRequest()
                         .header("X-Authentication-Error", "Authentication verification failed")

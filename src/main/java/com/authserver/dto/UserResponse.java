@@ -1,5 +1,6 @@
 package com.authserver.dto;
 
+import com.authserver.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,9 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthenticationResponse {
-    private String access_token;
-    private String token_type;
-    private Long expires_in;
-    private UserResponse user;
+public class UserResponse {
+    private Long id;
+    private String username;
+    private Role role;
 }

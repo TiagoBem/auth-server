@@ -1,16 +1,18 @@
 package com.authserver.controller;
 
-import com.authserver.dto.AuthenticationFinishRequest;
-import com.authserver.dto.PasskeyAuthenticationResponse;
-import com.authserver.dto.UserResponse;
-import com.authserver.dto.AuthenticationStartRequest;
-import com.authserver.dto.AuthenticationStartResponse;
+import com.authserver.dto.*;
 import com.authserver.entity.Credential;
+import com.authserver.entity.RefreshToken;
 import com.authserver.entity.User;
 import com.authserver.repository.CredentialRepository;
 import com.authserver.repository.UserRepository;
+import com.authserver.service.RefreshTokenService;
 import com.authserver.util.JwtUtil;
-import com.yubico.webauthn.*;
+import com.yubico.webauthn.AssertionRequest;
+import com.yubico.webauthn.AssertionResult;
+import com.yubico.webauthn.FinishAssertionOptions;
+import com.yubico.webauthn.RelyingParty;
+import com.yubico.webauthn.StartAssertionOptions;
 import com.yubico.webauthn.data.AuthenticatorAssertionResponse;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.ClientAssertionExtensionOutputs;
@@ -46,6 +48,7 @@ public class AuthenticationController {
     private final UserRepository userRepository;
     private final CredentialRepository credentialRepository;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/start")
     public ResponseEntity<AuthenticationStartResponse> startAuthentication(
@@ -175,9 +178,11 @@ public class AuthenticationController {
                 session.removeAttribute("username");
 
                 final String jwt = jwtUtil.generateToken(user);
+                final RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
                 return ResponseEntity.ok(PasskeyAuthenticationResponse.builder()
                         .access_token(jwt)
+                        .refresh_token(refreshToken.getToken())
                         .token_type("bearer")
                         .expires_in(3600L)
                         .user(new UserResponse(user.getId(), user.getUsername(), user.getRole()))
@@ -198,5 +203,19 @@ public class AuthenticationController {
                     .header("X-Authentication-Error", "Unexpected error: " + e.getMessage())
                     .build();
         }
+    }
+
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<?> refreshToken(@Valid @RequestBody TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtUtil.generateToken(user);
+                    return ResponseEntity.ok(new TokenRefreshResponse(token, requestRefreshToken));
+                })
+                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
     }
 }

@@ -39,7 +39,8 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/webjars/**"),
                                 new AntPathRequestMatcher("/css/**"),
                                 new AntPathRequestMatcher("/js/**"),
-                                new AntPathRequestMatcher("/favicon.ico")
+                                new AntPathRequestMatcher("/favicon.ico"),
+                                new AntPathRequestMatcher("/login/refreshtoken")
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

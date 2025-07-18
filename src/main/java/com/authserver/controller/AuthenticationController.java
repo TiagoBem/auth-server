@@ -1,7 +1,7 @@
 package com.authserver.controller;
 
 import com.authserver.dto.AuthenticationFinishRequest;
-import com.authserver.dto.AuthenticationResponse;
+import com.authserver.dto.PasskeyAuthenticationResponse;
 import com.authserver.dto.AuthenticationStartRequest;
 import com.authserver.dto.AuthenticationStartResponse;
 import com.authserver.entity.Credential;
@@ -84,7 +84,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/finish")
-    public ResponseEntity<AuthenticationResponse> finishAuthentication(
+    public ResponseEntity<PasskeyAuthenticationResponse> finishAuthentication(
             @RequestBody AuthenticationFinishRequest request,
             HttpSession session) {
 
@@ -171,7 +171,7 @@ public class AuthenticationController {
                 session.removeAttribute("assertionRequest");
                 session.removeAttribute("username");
 
-                return ResponseEntity.ok(new AuthenticationResponse("success"));
+                return ResponseEntity.ok(new PasskeyAuthenticationResponse(user.getUsername(), user.getRole()));
             } else {
                 return ResponseEntity.badRequest()
                         .header("X-Authentication-Error", "Authentication verification failed")

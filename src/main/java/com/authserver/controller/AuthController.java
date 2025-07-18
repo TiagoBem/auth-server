@@ -2,6 +2,7 @@ package com.authserver.controller;
 
 import com.authserver.dto.AuthenticationRequest;
 import com.authserver.dto.AuthenticationResponse;
+import com.authserver.dto.UserResponse;
 import com.authserver.entity.User;
 import com.authserver.repository.UserRepository;
 import com.authserver.service.WebAuthnUserDetailsService;
@@ -42,7 +43,12 @@ public class AuthController {
 
         final String jwt = jwtUtil.generateToken(user);
 
-        return ResponseEntity.ok(new AuthenticationResponse(jwt, user.getId(), user.getUsername(), user.getRole()));
+        return ResponseEntity.ok(AuthenticationResponse.builder()
+                .access_token(jwt)
+                .token_type("bearer")
+                .expires_in(3600L)
+                .user(new UserResponse(user.getId(), user.getUsername(), user.getRole()))
+                .build());
     }
 
 }

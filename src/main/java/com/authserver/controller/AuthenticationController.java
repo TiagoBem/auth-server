@@ -2,6 +2,7 @@ package com.authserver.controller;
 
 import com.authserver.dto.AuthenticationFinishRequest;
 import com.authserver.dto.PasskeyAuthenticationResponse;
+import com.authserver.dto.UserResponse;
 import com.authserver.dto.AuthenticationStartRequest;
 import com.authserver.dto.AuthenticationStartResponse;
 import com.authserver.entity.Credential;
@@ -175,7 +176,12 @@ public class AuthenticationController {
 
                 final String jwt = jwtUtil.generateToken(user);
 
-                return ResponseEntity.ok(new PasskeyAuthenticationResponse(jwt, user.getUsername(), user.getRole()));
+                return ResponseEntity.ok(PasskeyAuthenticationResponse.builder()
+                        .access_token(jwt)
+                        .token_type("bearer")
+                        .expires_in(3600L)
+                        .user(new UserResponse(user.getId(), user.getUsername(), user.getRole()))
+                        .build());
             } else {
                 return ResponseEntity.badRequest()
                         .header("X-Authentication-Error", "Authentication verification failed")

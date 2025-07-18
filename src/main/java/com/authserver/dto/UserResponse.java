@@ -10,9 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PasskeyAuthenticationResponse {
-    private String access_token;
-    private String token_type;
-    private Long expires_in;
-    private UserResponse user;
+public class UserResponse {
+    private Long id;
+    private String username;
+    private Role role;
 }

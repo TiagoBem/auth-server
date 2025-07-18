@@ -52,11 +52,14 @@ public class JwtUtil {
     @Value("${jwt.refresh.expiration}")
     private long refreshTokenExpiration;
 
+    @Value("${jwt.access-token.expiration}")
+    private long accessTokenExpiration;
+
     public String generateToken(com.authserver.entity.User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", user.getId());
         claims.put("role", user.getRole().name());
-        return createToken(claims, user.getUsername(), 1000 * 60 * 60 * 10); // 10 hours
+        return createToken(claims, user.getUsername(), accessTokenExpiration);
     }
 
     public String generateRefreshToken(com.authserver.entity.User user) {

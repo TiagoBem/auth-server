@@ -8,6 +8,7 @@
     <include file="db/changelog/202507171800000-create-users-table.sql"/>
     <include file="db/changelog/202507171800000-create-credentials-table.sql"/>
     <include file="db/changelog/20250717202500000-add-role-to-user.sql"/>
+    <include file="db/changelog/202507181600000_create-refresh-token-table.sql"/>
 
 
 </databaseChangeLog>

@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -49,6 +50,9 @@ public class AuthenticationController {
     private final CredentialRepository credentialRepository;
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
+
+    @Value("${jwt.access-token.expiration}")
+    private Long accessTokenExpiration;
 
     @PostMapping("/start")
     public ResponseEntity<AuthenticationStartResponse> startAuthentication(
@@ -184,7 +188,7 @@ public class AuthenticationController {
                         .access_token(jwt)
                         .refresh_token(refreshToken.getToken())
                         .token_type("bearer")
-                        .expires_in(3600L)
+                        .expires_in(accessTokenExpiration / 1000L)
                         .user(new UserResponse(user.getId(), user.getUsername(), user.getRole()))
                         .build());
             } else {

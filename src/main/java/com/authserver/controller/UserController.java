@@ -1,5 +1,6 @@
 package com.authserver.controller;
 
+import com.authserver.dto.UserResponse;
 import com.authserver.dto.UserRoleUpdateRequest;
 import com.authserver.entity.User;
 import com.authserver.service.UserService;
@@ -18,7 +19,7 @@ public class UserController {
 
     @PutMapping("/{userId}/role")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<User> updateUserRole(@PathVariable Long userId, @Valid @RequestBody UserRoleUpdateRequest request) {
+    public ResponseEntity<UserResponse> updateUserRole(@PathVariable Long userId, @Valid @RequestBody UserRoleUpdateRequest request) {
         return userService.updateUserRole(userId, request.getRole())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.badRequest().build());

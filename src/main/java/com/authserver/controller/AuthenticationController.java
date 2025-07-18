@@ -8,6 +8,7 @@ import com.authserver.entity.Credential;
 import com.authserver.entity.User;
 import com.authserver.repository.CredentialRepository;
 import com.authserver.repository.UserRepository;
+import com.authserver.util.JwtUtil;
 import com.yubico.webauthn.*;
 import com.yubico.webauthn.data.AuthenticatorAssertionResponse;
 import com.yubico.webauthn.data.ByteArray;
@@ -43,6 +44,7 @@ public class AuthenticationController {
     private final RelyingParty relyingParty;
     private final UserRepository userRepository;
     private final CredentialRepository credentialRepository;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/start")
     public ResponseEntity<AuthenticationStartResponse> startAuthentication(
@@ -171,7 +173,9 @@ public class AuthenticationController {
                 session.removeAttribute("assertionRequest");
                 session.removeAttribute("username");
 
-                return ResponseEntity.ok(new PasskeyAuthenticationResponse(user.getUsername(), user.getRole()));
+                final String jwt = jwtUtil.generateToken(user);
+
+                return ResponseEntity.ok(new PasskeyAuthenticationResponse(jwt, user.getUsername(), user.getRole()));
             } else {
                 return ResponseEntity.badRequest()
                         .header("X-Authentication-Error", "Authentication verification failed")

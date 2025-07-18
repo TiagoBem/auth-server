@@ -171,7 +171,7 @@ public class AuthenticationController {
                 session.removeAttribute("assertionRequest");
                 session.removeAttribute("username");
 
-                return ResponseEntity.ok(new AuthenticationResponse(user.getUsername(), user.getRole()));
+                return ResponseEntity.ok(new AuthenticationResponse("success"));
             } else {
                 return ResponseEntity.badRequest()
                         .header("X-Authentication-Error", "Authentication verification failed")

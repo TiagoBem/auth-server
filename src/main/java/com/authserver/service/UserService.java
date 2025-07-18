@@ -1,5 +1,6 @@
 package com.authserver.service;
 
+import com.authserver.dto.UserResponse;
 import com.authserver.entity.Role;
 import com.authserver.entity.User;
 import com.authserver.repository.UserRepository;
@@ -17,7 +18,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public Optional<User> updateUserRole(Long userId, Role newRole) {
+    public Optional<UserResponse> updateUserRole(Long userId, Role newRole) {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<User> currentUserOpt = userRepository.findByUsername(currentUsername);
         Optional<User> userToUpdateOpt = userRepository.findById(userId);
@@ -28,8 +29,12 @@ public class UserService {
 
             if (currentUser.getRole() == Role.ADMIN && !currentUser.getId().equals(userToUpdate.getId())) {
                 userToUpdate.setRole(newRole);
-                userRepository.save(userToUpdate);
-                return Optional.of(userToUpdate);
+                User updatedUser = userRepository.save(userToUpdate);
+                return Optional.of(UserResponse.builder()
+                        .id(updatedUser.getId())
+                        .username(updatedUser.getUsername())
+                        .role(updatedUser.getRole())
+                        .build());
             }
         }
         return Optional.empty();

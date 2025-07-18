@@ -49,17 +49,29 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
+    @Value("${jwt.refresh.expiration}")
+    private long refreshTokenExpiration;
+
+    @Value("${jwt.access-token.expiration}")
+    private long accessTokenExpiration;
+
     public String generateToken(com.authserver.entity.User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", user.getId());
         claims.put("role", user.getRole().name());
-        return createToken(claims, user.getUsername());
+        return createToken(claims, user.getUsername(), accessTokenExpiration);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    public String generateRefreshToken(com.authserver.entity.User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", user.getId());
+        return createToken(claims, user.getUsername(), refreshTokenExpiration);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject, long expiration) {
 
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key, SignatureAlgorithm.HS256).compact();
     }
 

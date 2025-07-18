@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PasskeyAuthenticationResponse {
     private String access_token;
+    private String refresh_token;
     private String token_type;
     private Long expires_in;
     private UserResponse user;
